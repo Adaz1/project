@@ -2,7 +2,8 @@ package adam.android.project;
 
 public class Checkers {
     public static final int m = 8;
-    public static final int n = 4;
+    public static final int n = 8;
+    public static final int whiteTile = -1;
     public static final int empty = 0;
     public static final int whitePiece = 1;
     public static final int blackPiece = 2;
@@ -18,14 +19,17 @@ public class Checkers {
         board = new byte [m][n];
         for (int i = 0; i < m; i++) {
             for (int j = 0; j < n; j++) {
-                if (m <= 3) {
-                    board[m][n] = blackPiece;
+                if (i <= 2 && (i+j)%2 == 1) {
+                    board[i][j] = blackPiece;
                 }
-                else if (m >= 6) {
-                    board[m][n] = whitePiece;
+                else if (i >= 5 && (i+j)%2 == 1) {
+                    board[i][j] = whitePiece;
+                }
+                else if ((i+j)%2 == 1){
+                    board[i][j] = empty;
                 }
                 else {
-                    board[m][n] = empty;
+                    board[i][j] = whiteTile;
                 }
             }
         }
@@ -76,8 +80,11 @@ public class Checkers {
         return 0;
     }
 
-    public void checkMove() {
+    public void checkMove(int x, int y) {
+        if (board[x][y] == blackPiece) {
+            //if (board[x+1][])
 
+        }
     }
 
 

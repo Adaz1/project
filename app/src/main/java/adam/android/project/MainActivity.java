@@ -1,7 +1,12 @@
 package adam.android.project;
 
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Point;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -22,11 +27,9 @@ import android.widget.TableRow;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+import sac.game.GameStateImpl;
 
-    /*private GridLayout mainBoardLayout;
-    private Button btn = new Button(this);
-    private Button btn1;*/
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private TableLayout mainBoardLayout;
     private ConstraintLayout con;
@@ -41,6 +44,26 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton square17;
     private ImageButton square18;
 
+
+
+    @Override
+    public void onClick(View v) {
+        Bitmap bitmap1 = BitmapFactory.decodeResource(getResources(), R.drawable.dark_square);
+        Bitmap bitmpa2 = BitmapFactory.decodeResource(getResources(), R.drawable.test3);
+        BitmapDrawable bd = new BitmapDrawable(getResources(), createSingleImageFromMultipleImages(bitmap1, bitmpa2));
+        Drawable draw = new BitmapDrawable(getResources(), createSingleImageFromMultipleImages(bitmap1, bitmpa2));
+        v.setBackground(draw);  // Error
+
+    }
+
+
+    public Bitmap createSingleImageFromMultipleImages(Bitmap firstImage, Bitmap secondImage) {
+        Bitmap result = Bitmap.createBitmap(firstImage.getWidth(), firstImage.getHeight(), firstImage.getConfig());
+        Canvas canvas = new Canvas(result);
+        canvas.drawBitmap(firstImage, 0f, 0f, null);
+        canvas.drawBitmap(secondImage, 0f, 0f, null);
+        return result;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,66 +98,32 @@ public class MainActivity extends AppCompatActivity {
                     imgButton.setBackgroundResource(R.drawable.dark_square);
 
                 tableRow.addView(imgButton);
+                board.add(imgButton);
             }
             mainBoardLayout.addView(tableRow, i);
         }
 
+        Checkers checkers = new Checkers();
 
-        /*square11 = (ImageButton) findViewById(R.id.imageButton1);
-        square11.setImageResource(R.drawable.white_square);
-        square12 = (ImageButton) findViewById(R.id.imageButton2);
-        square12.setImageResource(R.drawable.dark_square);
-        square13 = (ImageButton) findViewById(R.id.imageButton3);
-        square13.setImageResource(R.drawable.white_square);
-        square14 = (ImageButton) findViewById(R.id.imageButton4);
-        square14.setImageResource(R.drawable.dark_square);
-        square15 = (ImageButton) findViewById(R.id.imageButton5);
-        square15.setImageResource(R.drawable.white_square);
-        square16 = (ImageButton) findViewById(R.id.imageButton6);
-        square16.setImageResource(R.drawable.dark_square);
-        square17 = (ImageButton) findViewById(R.id.imageButton7);
-        square17.setImageResource(R.drawable.white_square);
-        square18 = (ImageButton) findViewById(R.id.imageButton8);
-        square18.setImageResource(R.drawable.dark_square);
-
-        square11.setAdjustViewBounds(true);
-        square12.setAdjustViewBounds(true);
-        square13.setAdjustViewBounds(true);
-        square14.setAdjustViewBounds(true);
-        square15.setAdjustViewBounds(true);
-        square16.setAdjustViewBounds(true);
-        square17.setAdjustViewBounds(true);
-        square18.setAdjustViewBounds(true);
-
-        /*Configuration configuration = getResources().getConfiguration();
-        int screenWidth = configuration.screenWidthDp - (configuration.screenWidthDp%8);
-        int screenHeight = configuration.screenHeightDp - (configuration.screenHeightDp%8);
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (checkers.board[i][j] != -1) {
+                    board.get(i * 8 + j).setOnClickListener(this);
+                }
+            }
+        }
 
 
 
 
-        /*mainBoardLayout.setMinimumWidth(screenWidth);
-        mainBoardLayout.setMinimumHeight(screenHeight);
 
-        square11.setMaxWidth(screenWidth/8);
-        square11.setMaxHeight(screenHeight/8);
-        square12.setMaxWidth(screenWidth/8);
-        square12.setMaxHeight(screenHeight/8);
-        square13.setMaxWidth(screenWidth/8);
-        square13.setMaxHeight(screenHeight/8);
-        square14.setMaxWidth(screenWidth/8);
-        square14.setMaxHeight(screenHeight/8);
-        square15.setMaxWidth(screenWidth/8);
-        square15.setMaxHeight(screenHeight/8);
-        square16.setMaxWidth(screenWidth/8);
-        square16.setMaxHeight(screenHeight/8);
-        square17.setMaxWidth(screenWidth/8);
-        square17.setMaxHeight(screenHeight/8);
-        square18.setMaxWidth(screenWidth/8);
-        square18.setMaxHeight(screenHeight/8);*/
 
-        /*Log.d("Console", "Hello");*/
-
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                System.out.print(checkers.board[i][j]);
+            }
+            System.out.println();
+        }
     }
 
 }
