@@ -44,24 +44,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageButton square17;
     private ImageButton square18;
 
+    public int currentPieceId = 0;
 
+    Checkers checkers = new Checkers();
 
-    @Override
-    public void onClick(View v) {
-        Bitmap bitmap1 = BitmapFactory.decodeResource(getResources(), R.drawable.dark_square);
-        Bitmap bitmpa2 = BitmapFactory.decodeResource(getResources(), R.drawable.test3);
-        BitmapDrawable bd = new BitmapDrawable(getResources(), createSingleImageFromMultipleImages(bitmap1, bitmpa2));
-        Drawable draw = new BitmapDrawable(getResources(), createSingleImageFromMultipleImages(bitmap1, bitmpa2));
-        v.setBackground(draw);  // Error
-
-    }
-
+    List<ImageButton> imgList = new ArrayList<ImageButton>();
 
     public Bitmap createSingleImageFromMultipleImages(Bitmap firstImage, Bitmap secondImage) {
         Bitmap result = Bitmap.createBitmap(firstImage.getWidth(), firstImage.getHeight(), firstImage.getConfig());
         Canvas canvas = new Canvas(result);
         canvas.drawBitmap(firstImage, 0f, 0f, null);
-        canvas.drawBitmap(secondImage, 0f, 0f, null);
+        canvas.drawBitmap(secondImage, 25f, 25f, null);
         return result;
     }
 
@@ -80,8 +73,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         int screenWidth = size.x - (size.x%8);
         int screenHeight = size.y - (size.y%8);
 
-        List<ImageButton> board = new ArrayList<ImageButton>();
-
         for (int i = 0; i < 8; i++)
         {
             TableRow tableRow = new TableRow(this);
@@ -91,32 +82,47 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             {
                 ImageButton imgButton = new ImageButton(this);
                 imgButton.setLayoutParams(new TableRow.LayoutParams(screenWidth/8, screenWidth/8));
+                imgButton.setId(i*8+j);
 
-                if ((i+j)%2 == 0)
+                /*if ((i+j)%2 == 0)
                     imgButton.setBackgroundResource(R.drawable.white_square);
                 else
+                    imgButton.setBackgroundResource(R.drawable.dark_square);*/
+
+                if (checkers.board[i][j] == -1) {
+                    imgButton.setBackgroundResource(R.drawable.white_square);
+                }
+                else if (checkers.board[i][j] == 0) {
                     imgButton.setBackgroundResource(R.drawable.dark_square);
+                }
+                else if (checkers.board[i][j] == 1) {
+                    Bitmap bitmap1 = BitmapFactory.decodeResource(getResources(), R.drawable.dark_square);
+                    Bitmap bitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.white_piece2);
+                    Drawable draw = new BitmapDrawable(getResources(), createSingleImageFromMultipleImages(bitmap1, bitmap2));
+                    imgButton.setBackground(draw);
+                }
+                else
+                {
+                    Bitmap bitmap1 = BitmapFactory.decodeResource(getResources(), R.drawable.dark_square);
+                    Bitmap bitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.black_piece2);
+                    Drawable draw = new BitmapDrawable(getResources(), createSingleImageFromMultipleImages(bitmap1, bitmap2));
+                    imgButton.setBackground(draw);
+                }
 
                 tableRow.addView(imgButton);
-                board.add(imgButton);
+                imgList.add(imgButton);
             }
             mainBoardLayout.addView(tableRow, i);
         }
 
-        Checkers checkers = new Checkers();
 
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 if (checkers.board[i][j] != -1) {
-                    board.get(i * 8 + j).setOnClickListener(this);
+                    imgList.get(i * 8 + j).setOnClickListener(this);
                 }
             }
         }
-
-
-
-
-
 
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
@@ -124,6 +130,49 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             System.out.println();
         }
+    }
+
+    void DrawBoard() {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (checkers.board[i][j] == -1) {
+                    imgList.get(i*8+j).setBackgroundResource(R.drawable.white_square);
+                }
+                else if (checkers.board[i][j] == 0) {
+                    imgList.get(i*8+j).setBackgroundResource(R.drawable.dark_square);
+                }
+                else if (checkers.board[i][j] == 1) {
+                    Bitmap bitmap1 = BitmapFactory.decodeResource(getResources(), R.drawable.dark_square);
+                    Bitmap bitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.white_piece2);
+                    Drawable draw = new BitmapDrawable(getResources(), createSingleImageFromMultipleImages(bitmap1, bitmap2));
+                    imgList.get(i*8+j).setBackground(draw);
+                }
+                else
+                {
+                    Bitmap bitmap1 = BitmapFactory.decodeResource(getResources(), R.drawable.dark_square);
+                    Bitmap bitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.black_piece2);
+                    Drawable draw = new BitmapDrawable(getResources(), createSingleImageFromMultipleImages(bitmap1, bitmap2));
+                    imgList.get(i*8+j).setBackground(draw);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        /*Bitmap bitmap1 = BitmapFactory.decodeResource(getResources(), R.drawable.dark_square);
+        Bitmap bitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.test3);
+        //BitmapDrawable bd = new BitmapDrawable(getResources(), createSingleImageFromMultipleImages(bitmap1, bitmap2));
+        Drawable draw = new BitmapDrawable(getResources(), createSingleImageFromMultipleImages(bitmap1, bitmap2));
+        v.setBackground(draw);*/
+
+        if (currentPieceId == 0 || checkers.board[((int) v.getId())/8][((int) v.getId())%8] != 0)
+            currentPieceId = v.getId();
+        else {
+            checkers.checkMove(currentPieceId/8, currentPieceId%8, ((int) v.getId())/8, ((int) v.getId())%8);
+            currentPieceId = 0;
+        }
+        DrawBoard();
     }
 
 }

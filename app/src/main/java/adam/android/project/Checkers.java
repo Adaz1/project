@@ -37,7 +37,7 @@ public class Checkers {
         blackPiecesAmount = 12;
     }
 
-    public int canCapture(int x, int y) {
+    public int[] canCapture(int x, int y) {
         /*int piece = 0;
         int piecesAmount;
 
@@ -53,7 +53,8 @@ public class Checkers {
         for (int i = 0; i < piecesAmount; i++) {
 
         }*/
-        /*int oppPiece;
+
+        int oppPiece;
         if (board[x][y] == whitePiece)
             oppPiece = blackPiece;
         else
@@ -61,37 +62,50 @@ public class Checkers {
 
         int value[] = {0, 0, 0, 0};
 
-
         if (board[x+1][y+1] == oppPiece && board[x+2][y+2] == empty) {
-
+            value[0]++;
         }
         if (board[x-1][y+1] == oppPiece && board[x-2][y+2] == empty) {
-            value[2]++;
-            canCapture(x-2, y+2);
+            value[1]++;
         }
         if (board[x-1][y-1] == oppPiece && board[x-2][y-2] == empty) {
-
+            value[2]++;
         }
         if (board[x+1][y-1] == oppPiece && board[x+2][y-2] == empty) {
-            value++;
+            value[3]++;
         }
 
-        return value;*/
-        return 0;
+        return value;
     }
 
-    public void checkMove(int x, int y) {
-        if (board[x][y] == blackPiece) {
-            //if (board[x+1][])
-
+    public void checkMove(int x1, int y1, int x2, int y2) {
+        if (turn == 0 && board[x1][y1] == whitePiece && board[x2][y2] == empty) {
+            if ((x1-1 == x2 && y1-1 == y2) || (x1-1 == x2 && y1+1 == y2)) {
+                makeMove(x1, y1, x2, y2);
+            }
+        }
+        else if (turn == 1 && board[x1][y1] == blackPiece && board[x2][y2] == empty) {
+            if ((x1+1 == x2 && y1-1 == y2) || (x1+1 == x2 && y1+1 == y2)) {
+                makeMove(x1, y1, x2, y2);
+            }
         }
     }
 
 
     public void makeMove(int x1, int y1, int x2, int y2) {
-        if (turn == 0 && board[x1][y1] == whitePiece) {
-
+        board[x1][y1] = empty;
+        if (turn == 0) {
+            board[x2][y2] = whitePiece;
+            turn = 1;
         }
+        else {
+            board[x2][y2] = blackPiece;
+            turn = 0;
+        }
+    }
+
+    public void start() {
+
     }
 
     /*public static void main() {
