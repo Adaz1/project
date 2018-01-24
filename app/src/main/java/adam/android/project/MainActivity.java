@@ -4,7 +4,11 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.ColorFilter;
 import android.graphics.Point;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.constraint.ConstraintLayout;
@@ -35,14 +39,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ConstraintLayout con;
     private Display display;
 
-    private ImageButton square11;
-    private ImageButton square12;
-    private ImageButton square13;
-    private ImageButton square14;
-    private ImageButton square15;
-    private ImageButton square16;
-    private ImageButton square17;
-    private ImageButton square18;
+    Drawable whiteOnSquareImg;
+    Drawable blackOnSquareImg;
+    Drawable whiteOnSquareImgFocused;
+    Drawable blackOnSquareImgFocused;
 
     public int currentPieceId = 0;
 
@@ -73,6 +73,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         int screenWidth = size.x - (size.x%8);
         int screenHeight = size.y - (size.y%8);
 
+        Bitmap darkSquareImg = BitmapFactory.decodeResource(getResources(), R.drawable.dark_square);
+        Bitmap whitePieceImg = BitmapFactory.decodeResource(getResources(), R.drawable.white_piece2);
+        Bitmap blackPieceImg = BitmapFactory.decodeResource(getResources(), R.drawable.black_piece2);
+        Bitmap focusImg = BitmapFactory.decodeResource(getResources(), R.drawable.red_frame);
+        whiteOnSquareImg = new BitmapDrawable(getResources(), createSingleImageFromMultipleImages(darkSquareImg, whitePieceImg));
+        blackOnSquareImg = new BitmapDrawable(getResources(), createSingleImageFromMultipleImages(darkSquareImg, blackPieceImg));
+        whiteOnSquareImgFocused = whiteOnSquareImg.getConstantState().newDrawable().mutate();
+        whiteOnSquareImgFocused.setColorFilter(Color.WHITE, PorterDuff.Mode.OVERLAY);
+        blackOnSquareImgFocused = blackOnSquareImg.getConstantState().newDrawable().mutate();
+        blackOnSquareImgFocused.setColorFilter(Color.BLACK, PorterDuff.Mode.OVERLAY);
+
+
         for (int i = 0; i < 8; i++)
         {
             TableRow tableRow = new TableRow(this);
@@ -96,17 +108,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     imgButton.setBackgroundResource(R.drawable.dark_square);
                 }
                 else if (checkers.board[i][j] == 1) {
-                    Bitmap bitmap1 = BitmapFactory.decodeResource(getResources(), R.drawable.dark_square);
-                    Bitmap bitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.white_piece2);
-                    Drawable draw = new BitmapDrawable(getResources(), createSingleImageFromMultipleImages(bitmap1, bitmap2));
-                    imgButton.setBackground(draw);
+                    imgButton.setBackground(whiteOnSquareImg);
                 }
                 else
                 {
-                    Bitmap bitmap1 = BitmapFactory.decodeResource(getResources(), R.drawable.dark_square);
-                    Bitmap bitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.black_piece2);
-                    Drawable draw = new BitmapDrawable(getResources(), createSingleImageFromMultipleImages(bitmap1, bitmap2));
-                    imgButton.setBackground(draw);
+                    imgButton.setBackground(blackOnSquareImg);
                 }
 
                 tableRow.addView(imgButton);
@@ -142,35 +148,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     imgList.get(i*8+j).setBackgroundResource(R.drawable.dark_square);
                 }
                 else if (checkers.board[i][j] == 1) {
-                    Bitmap bitmap1 = BitmapFactory.decodeResource(getResources(), R.drawable.dark_square);
-                    Bitmap bitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.white_piece2);
-                    Drawable draw = new BitmapDrawable(getResources(), createSingleImageFromMultipleImages(bitmap1, bitmap2));
-                    imgList.get(i*8+j).setBackground(draw);
+                    imgList.get(i*8+j).setBackground(whiteOnSquareImg);
                 }
                 else
                 {
-                    Bitmap bitmap1 = BitmapFactory.decodeResource(getResources(), R.drawable.dark_square);
-                    Bitmap bitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.black_piece2);
-                    Drawable draw = new BitmapDrawable(getResources(), createSingleImageFromMultipleImages(bitmap1, bitmap2));
-                    imgList.get(i*8+j).setBackground(draw);
+                    imgList.get(i*8+j).setBackground(blackOnSquareImg);
                 }
             }
         }
+        if (currentPieceId != 0) {
+            if (checkers.board[currentPieceId/8][currentPieceId%8] == 1)
+                imgList.get(currentPieceId).setBackground(whiteOnSquareImgFocused);
+            else if (checkers.board[currentPieceId/8][currentPieceId%8] == 2)
+                imgList.get(currentPieceId).setBackground(blackOnSquareImgFocused);
+        }
+
     }
 
     @Override
     public void onClick(View v) {
-        /*Bitmap bitmap1 = BitmapFactory.decodeResource(getResources(), R.drawable.dark_square);
-        Bitmap bitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.test3);
-        //BitmapDrawable bd = new BitmapDrawable(getResources(), createSingleImageFromMultipleImages(bitmap1, bitmap2));
-        Drawable draw = new BitmapDrawable(getResources(), createSingleImageFromMultipleImages(bitmap1, bitmap2));
-        v.setBackground(draw);*/
-
-        if (currentPieceId == 0 || checkers.board[((int) v.getId())/8][((int) v.getId())%8] != 0)
+        if (currentPieceId == 0 || checkers.board[((int) v.getId()) / 8][((int) v.getId()) % 8] != 0) {
             currentPieceId = v.getId();
+        }
         else {
-            checkers.checkMove(currentPieceId/8, currentPieceId%8, ((int) v.getId())/8, ((int) v.getId())%8);
-            currentPieceId = 0;
+            if ((Math.abs(currentPieceId/8 - ((int) v.getId())/8) == 2) && (Math.abs(currentPieceId%8 - ((int) v.getId())%8) == 2)) {
+                checkers.canCapture(currentPieceId/8, currentPieceId%8, ((int) v.getId())/8, ((int) v.getId())%8);
+                currentPieceId = 0;
+            }
+            else {
+                checkers.checkMove(currentPieceId / 8, currentPieceId % 8, ((int) v.getId()) / 8, ((int) v.getId()) % 8);
+                currentPieceId = 0;
+            }
         }
         DrawBoard();
     }

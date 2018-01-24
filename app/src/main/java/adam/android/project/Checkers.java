@@ -37,24 +37,8 @@ public class Checkers {
         blackPiecesAmount = 12;
     }
 
-    public int[] canCapture(int x, int y) {
-        /*int piece = 0;
-        int piecesAmount;
-
-        if (turn == 0) {
-            piece = 1;
-            piecesAmount = whitePiecesAmount;
-        }
-        else {
-            piece = 2;
-            piecesAmount = blackPiecesAmount;
-        }
-
-        for (int i = 0; i < piecesAmount; i++) {
-
-        }*/
-
-        int oppPiece;
+    public void canCapture(int x1, int y1, int x2, int y2) {
+        /*int oppPiece;
         if (board[x][y] == whitePiece)
             oppPiece = blackPiece;
         else
@@ -75,7 +59,22 @@ public class Checkers {
             value[3]++;
         }
 
-        return value;
+        return value;*/
+        if (turn == 0 && board[x1][y1] == whitePiece && board[x2][y2] == empty) {
+            if (x1-x2 == 2 && y1-y2 == 2) {
+                executeCapture(x1, y1, x2, y2, 1);
+            }
+            else if (x1-x2 == 2 && y1-y2 == -2) {
+                executeCapture(x1, y1, x2, y2, -1);
+            }
+        }
+        if (turn == 1 && board[x1][y1] == blackPiece && board[x2][y2] == empty) {
+            if (x1 - x2 == -2 && y1 - y2 == 2) {
+                executeCapture(x1, y1, x2, y2, 1);
+            } else if (x1 - x2 == -2 && y1 - y2 == -2) {
+                executeCapture(x1, y1, x2, y2, -1);
+            }
+        }
     }
 
     public void checkMove(int x1, int y1, int x2, int y2) {
@@ -100,6 +99,20 @@ public class Checkers {
         }
         else {
             board[x2][y2] = blackPiece;
+            turn = 0;
+        }
+    }
+
+    public void executeCapture(int x1, int y1, int x2, int y2, int dir) {
+        board[x1][y1] = empty;
+        if (turn == 0) {
+            board[x2][y2] = whitePiece;
+            board[x1-1][y1-dir] = empty;
+            turn = 1;
+        }
+        else {
+            board[x2][y2] = blackPiece;
+            board[x1+1][y1-dir] = empty;
             turn = 0;
         }
     }
