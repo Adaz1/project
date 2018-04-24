@@ -27,6 +27,7 @@ import android.widget.ImageButton;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.TableLayout;
 import android.widget.TableRow;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Drawable blackOnSquareImg;
     Drawable whiteOnSquareImgFocused;
     Drawable blackOnSquareImgFocused;
+    Drawable darkSquareInRedFrame;
 
     public int currentPieceId = 0;
 
@@ -50,11 +52,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     List<ImageButton> imgList = new ArrayList<ImageButton>();
 
-    public Bitmap createSingleImageFromMultipleImages(Bitmap firstImage, Bitmap secondImage) {
+    public Bitmap createSingleImageFromMultipleImages(Bitmap firstImage, Bitmap secondImage, int xShift, int yShift) {
         Bitmap result = Bitmap.createBitmap(firstImage.getWidth(), firstImage.getHeight(), firstImage.getConfig());
         Canvas canvas = new Canvas(result);
         canvas.drawBitmap(firstImage, 0f, 0f, null);
-        canvas.drawBitmap(secondImage, 25f, 25f, null);
+        canvas.drawBitmap(secondImage, xShift, yShift, null);
         return result;
     }
 
@@ -76,9 +78,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Bitmap darkSquareImg = BitmapFactory.decodeResource(getResources(), R.drawable.dark_square);
         Bitmap whitePieceImg = BitmapFactory.decodeResource(getResources(), R.drawable.white_piece2);
         Bitmap blackPieceImg = BitmapFactory.decodeResource(getResources(), R.drawable.black_piece2);
-        Bitmap focusImg = BitmapFactory.decodeResource(getResources(), R.drawable.red_frame);
-        whiteOnSquareImg = new BitmapDrawable(getResources(), createSingleImageFromMultipleImages(darkSquareImg, whitePieceImg));
-        blackOnSquareImg = new BitmapDrawable(getResources(), createSingleImageFromMultipleImages(darkSquareImg, blackPieceImg));
+        Bitmap redFrame = BitmapFactory.decodeResource(getResources(), R.drawable.red_frame);
+        darkSquareInRedFrame = new BitmapDrawable(getResources(), createSingleImageFromMultipleImages(darkSquareImg, redFrame, 0, 0));
+        whiteOnSquareImg = new BitmapDrawable(getResources(), createSingleImageFromMultipleImages(darkSquareImg, whitePieceImg, 25, 25));
+        blackOnSquareImg = new BitmapDrawable(getResources(), createSingleImageFromMultipleImages(darkSquareImg, blackPieceImg, 25, 25));
+
         whiteOnSquareImgFocused = whiteOnSquareImg.getConstantState().newDrawable().mutate();
         whiteOnSquareImgFocused.setColorFilter(Color.WHITE, PorterDuff.Mode.OVERLAY);
         blackOnSquareImgFocused = blackOnSquareImg.getConstantState().newDrawable().mutate();
@@ -138,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    void DrawBoard() {
+    void drawBoard() {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 if (checkers.board[i][j] == -1) {
@@ -163,6 +167,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 imgList.get(currentPieceId).setBackground(blackOnSquareImgFocused);
         }
 
+        try {
+            checkers.checkBoard();
+            for (int k = 0; k < checkers.possibleCaptures.size(); ++k) {
+                if ((currentPieceId/8) == Character.getNumericValue(checkers.possibleCaptures.get(k).charAt(0)) && (currentPieceId%8) == Character.getNumericValue(checkers.possibleCaptures.get(k).charAt(1))) {
+                    System.out.println("Gooooooooooooooooood");
+                    int x = Character.getNumericValue(checkers.possibleCaptures.get(k).charAt(checkers.possibleCaptures.get(k).length()-2));
+                    int y = Character.getNumericValue(checkers.possibleCaptures.get(k).charAt(checkers.possibleCaptures.get(k).length()-1));
+                    imgList.get(x*8+y).setBackground(darkSquareInRedFrame);
+
+                }
+            }
+        }
+        catch (Exception e){
+            System.out.println("Keep going");
+        }
+
+
+
+        if (checkers.isEnd()) {
+            TextView winningText = new TextView(this);
+            winningText.setText(checkers.winningCommunicate);
+            winningText.setAllCaps(true);
+            winningText.setTextSize(25);
+            mainBoardLayout.addView(winningText);
+        }
     }
 
     @Override
@@ -171,8 +200,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             currentPieceId = v.getId();
         }
         else {
+            // Rozwiazac szczegolny przypadek dla bicia w koleczku (pionek konczy bicie na tym samym polu co zaczyna)
             if ((Math.abs(currentPieceId/8 - ((int) v.getId())/8) == 2) && (Math.abs(currentPieceId%8 - ((int) v.getId())%8) == 2)) {
-                checkers.canCapture(currentPieceId/8, currentPieceId%8, ((int) v.getId())/8, ((int) v.getId())%8);
+                checkers.checkMove(currentPieceId/8, currentPieceId%8, ((int) v.getId())/8, ((int) v.getId())%8);
                 currentPieceId = 0;
             }
             else {
@@ -180,7 +210,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 currentPieceId = 0;
             }
         }
-        DrawBoard();
+        drawBoard();
+
     }
 
 }
